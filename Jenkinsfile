@@ -1,30 +1,26 @@
-   pipeline {
-       agent any
+pipeline {
+    agent any
 
-       stages {
-           stage('Build') {
-               steps {
-                   script {
-                       // Компиляция проекта Go
-                       sh 'go build -o myapp main.go'
-                   }
-               }
-           }
-           stage('Upload to Nexus') {
-               steps {
-                   script {
-                       // Загрузка артефакта в Nexus
-                       def nexusUrl = 'http://localhost:8081/repository/go-binaries/'
-                       def fileName = 'myapp'
-                       def credentialsId = 'nexus-credentials' // ID учетных данных в Jenkins
-                       
-                       // Загрузка файла на сервер Nexus
-                       sh "curl -v -u admin:admin123 --upload-file ${fileName} ${nexusUrl}${fileName}"
-                   }
-               }
-           }
-       }
-   }
-   
-
-   
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // Компиляция проекта Go
+                    sh 'go build -o myapp main.go'
+                }
+            }
+        }
+        stage('Upload to Nexus') {
+            steps {
+                script {
+                    // URL репозитория Nexus
+                    def nexusUrl = 'http://localhost:8081/repository/go-binaries/'
+                    def fileName = 'myapp'
+                    
+                    // Загрузка файла на сервер Nexus с использованием анонимного доступа
+                    sh "curl -v --upload-file ${fileName} ${nexusUrl}${fileName}"
+                }
+            }
+        }
+    }
+}
