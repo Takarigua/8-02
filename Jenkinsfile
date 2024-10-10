@@ -2,26 +2,29 @@
        agent any
 
        stages {
-           stage('Clone') {
-               steps {
-                   git branch: 'main', url: 'https://github.com/Takarigua/8-02.git'
-               }
-           }
-           stage('Test') {
-               steps {
-                   sh 'go test ./...'
-               }
-           }
            stage('Build') {
                steps {
-                   sh 'docker build . -t ubuntu-bionic:8082/hello-world:v${BUILD_NUMBER}'
+                   script {
+                       // Компиляция проекта Go
+                       sh 'go build -o myapp main.go'
+                   }
                }
            }
-           stage('Push') {
+           stage('Upload to Nexus') {
                steps {
-                   sh 'docker push ubuntu-bionic:8082/hello-world:v${BUILD_NUMBER}'
+                   script {
+                       // Загрузка артефакта в Nexus
+                       def nexusUrl = 'http://localhost:8081/repository/go-binaries/'
+                       def fileName = 'myapp'
+                       def credentialsId = 'nexus-credentials' // ID учетных данных в Jenkins
+                       
+                       // Загрузка файла на сервер Nexus
+                       sh "curl -v -u admin:admin123 --upload-file ${fileName} ${nexusUrl}${fileName}"
+                   }
                }
            }
        }
    }
+   
+
    
